@@ -1,101 +1,69 @@
 PROBLEMS.push({
   id: 2,
-  title: "Coffee Shop Bill (Data Types Only)",
+  title: "Ticket Price by Age (Conditionals)",
 
-  tags: ["data types", "variables", "input", "output"],
+  tags: ["if/else", "validation"],
 
   statement: [
-    "A small coffee shop wants a simple program to calculate a customer’s bill. " +
-    "The program must read the customer’s name, the price of one drink, and the number " +
-    "of drinks ordered. It should then calculate the total cost and display a short " +
-    "summary of the order. " +
-    "The program does not need to perform any validation and should assume that all " +
-    "input values are valid. " +
-    "The output must be printed exactly as shown, with no additional text.\n\n" +
-    "Input:\n" +
-    "- A string representing the customer name\n" +
-    "- A decimal number representing the price of one drink\n" +
-    "- An integer representing the number of drinks ordered\n\n" +
-    "Output:\n" +
-    "- Customer name\n" +
-    "- Number of drinks\n" +
-    "- Price per drink\n" +
-    "- Total price"
-  ],
+    "A cinema sells tickets at different prices depending on the customer’s age. " +
+    "Your program must read a single integer representing the customer’s age and " +
+    "print exactly one line describing the ticket category and price. " +
+    "If the age is less than 0 or greater than 120, the input should be considered invalid " +
+    "and the program must print \"Invalid age\". " +
+    "For valid ages, customers aged 0 to 12 pay £5 and are classified as Child tickets, " +
+    "ages 13 to 17 pay £7 for a Teen ticket, ages 18 to 64 pay £10 for an Adult ticket, " +
+    "and customers aged 65 or above pay £6 for a Senior ticket. " +
+    "The output must consist only of the ticket label followed by a space, the pound symbol (£), " +
+    "and the price with no additional text. "
+ ],
 
   steps: [
-    "Create a Scanner object for input.",
-    "Read the customer name as a string.",
-    "Read the drink price as a double.",
-    "Read the number of drinks as an integer.",
-    "Calculate the total price by multiplying price and quantity.",
-    "Print the customer name.",
-    "Print the number of drinks ordered.",
-    "Print the price per drink.",
-    "Print the total price."
+    "Read the age.",
+    "Validate that age is between 0 and 120.",
+    "Create variables for label and price.",
+    "Use if / else-if to determine the category and assign the correct price.",
+    "Print the result."
   ],
 
   snippets: [
-    `Scanner sc = new Scanner(System.in);`,
+    `Scanner sc = new Scanner(System.in);
+int age = sc.nextInt();`,
 
-    `System.out.println("Enter your name:");
-   String name = sc.nextLine();`,
+    `if (age < 0 || age > 120) {
+  System.out.println("Invalid age");
+  return;
+}`,
 
-    `System.out.println("Enter price:");
-   double price = sc.nextDouble();`,
+    `String label;
+int price;`,
 
-    `System.out.println("Enter quantity:");
-   int quantity = sc.nextInt();`,
+    `if (age <= 12) {
+  label = "Child";
+  price = 5;
+} else if (age <= 17) {
+  label = "Teen";
+  price = 7;
+} else if (age <= 64) {
+  label = "Adult";
+  price = 10;
+} else {
+  label = "Senior";
+  price = 6;
+}`,
 
-    `double total = price * quantity;`,
-
-    `System.out.println("Customer: " + name);`,
-
-    `System.out.println("Drinks: " + quantity);`,
-
-    `System.out.println("Price per drink: £" + price);`,
-
-    `System.out.println("Total: £" + total);`
+    `System.out.println(label + " £" + price);`
   ],
 
   hints: [
-    "Use String for text values.",
-    "Use double for prices because they may contain decimals.",
-    "Use int for whole numbers.",
-    "Multiplication is used to calculate the total price."
+    "Always validate input first.",
+    "Else-if ensures only one category runs."
   ],
 
   mistakes: [
-    "Using int instead of double for the price.",
-    "Reading the inputs in the wrong order.",
-    "Forgetting to multiply price by quantity.",
-    "Using next() instead of nextLine() for the customer name."
+    "Forgetting to stop after invalid age.",
+    "Wrong boundary values."
   ],
 
-  solution: 
-`import java.util.*;
-
-public class Main {
-  public static void main(String[] args) {
-
-    Scanner sc = new Scanner(System.in);
-
-    String name = sc.nextLine();
-    double price = sc.nextDouble();
-    int quantity = sc.nextInt();
-
-    double total = price * quantity;
-
-    System.out.println("Customer: " + name);
-    System.out.println("Drinks: " + quantity);
-    System.out.println("Price per drink: £" + price);
-    System.out.println("Total: £" + total);
-  }
-}`,
-
-  why:
-    "This problem focuses entirely on understanding Java data types. " +
-    "Students practise choosing between String, int, and double, " +
-    "reading input values, storing them in variables, performing a calculation, " +
-    "and printing results without using any conditionals or loops."
+  solution: `...`,
+  why: "Teaches validation before decision logic."
 });
