@@ -1,6 +1,6 @@
 PROBLEMS.push({
   id: 1,
-  title: "Ticket Price by Age",
+  title: "Ticket Price by Age (Conditionals)",
 
   tags: ["if/else", "validation"],
 

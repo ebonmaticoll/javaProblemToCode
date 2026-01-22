@@ -411,8 +411,8 @@
 
     .controls{
       display:flex;
-      flex-direction:column;
-      gap:8px;
+      flex-direction:row;
+      gap:6px;
       align-items:flex-end;
       flex:0 0 auto;
     }
@@ -674,7 +674,7 @@
       </div>
     </div>
     <div class="top-actions">
-      <div class="pill" id="progressPill" aria-live="polite">Progress: <strong id="progressCount">0/20</strong></div>
+      <div class="pill" id="progressPill" aria-live="polite">Progress: <strong id="progressCount">0/2</strong></div>
       <button class="btn danger" id="resetProgressBtn" type="button" aria-label="Reset progress">Reset progress</button>
     </div>
   </div>
@@ -817,15 +817,9 @@
 </script>
 
 <script src="problems/problem-01.js"></script>
+<script src="problems/problem-02.js"></script>
 
 <script>
-/**
- * Single-file interactive page: 20 Java problems.
- * Two steps:
- *  1) Order micro-steps (drag & drop + up/down controls).
- *  2) Match each ordered step to a code snippet (dropdowns).
- * Progress: localStorage completion + best attempts.
- */
 
 (function(){
   "use strict";
@@ -959,7 +953,7 @@
   function updateTopProgressPill(){
     const prog = loadProgress();
     const done = countCompleted(prog);
-    elProgressCount.textContent = `${done}/1`;
+    elProgressCount.textContent = `${done}/2`;
   }
 
   // ---------- Sidebar rendering ----------
