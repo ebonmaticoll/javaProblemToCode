@@ -1,0 +1,1550 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Software Development 2 — Problem → Logic → Java</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1a33;
+      --panel2:#0d1630;
+      --card:#0f2447;
+      --muted:#9fb1d1;
+      --text:#eaf0ff;
+      --accent:#7aa2ff;
+      --accent2:#8bffa7;
+      --warn:#ffcc66;
+      --bad:#ff6b6b;
+      --good:#3ddc97;
+      --border:rgba(255,255,255,.10);
+      --shadow: 0 14px 30px rgba(0,0,0,.35);
+      --radius: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background:
+        radial-gradient(1200px 900px at 20% 10%, rgba(122,162,255,.16), transparent 60%),
+        radial-gradient(900px 700px at 90% 25%, rgba(61,220,151,.12), transparent 55%),
+        radial-gradient(1000px 800px at 40% 90%, rgba(255,204,102,.09), transparent 60%),
+        var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    a{ color:inherit; }
+    code, pre{ font-family:var(--mono); }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:10;
+      background: linear-gradient(180deg, rgba(11,18,32,.92), rgba(11,18,32,.70));
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--border);
+    }
+
+    .header-inner{
+      max-width:1200px;
+      margin:0 auto;
+      padding:14px 16px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      min-width: 0;
+    }
+
+    .logo{
+      width:38px; height:38px;
+      border-radius:12px;
+      background: linear-gradient(135deg, rgba(122,162,255,.95), rgba(61,220,151,.85));
+      box-shadow: 0 10px 18px rgba(0,0,0,.25);
+      display:grid;
+      place-items:center;
+      flex: 0 0 auto;
+    }
+    .logo span{
+      font-weight:900;
+      color:#071021;
+      letter-spacing:.4px;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:16px;
+      line-height:1.2;
+      font-weight:800;
+      letter-spacing:.2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .brand p{
+      margin:2px 0 0 0;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .pill{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      gap:8px;
+      align-items:center;
+      user-select:none;
+    }
+
+    .btn{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      font-weight:700;
+      font-size:13px;
+      cursor:pointer;
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      justify-content:center;
+    }
+    .btn:hover{ background: rgba(255,255,255,.10); }
+    .btn:active{ transform: translateY(1px); }
+    .btn:focus{ outline: 2px solid rgba(122,162,255,.7); outline-offset:2px; }
+
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(122,162,255,.9), rgba(122,162,255,.55));
+      border-color: rgba(122,162,255,.65);
+      color:#071021;
+    }
+    .btn.primary:hover{ background: linear-gradient(135deg, rgba(122,162,255,.98), rgba(122,162,255,.62)); }
+
+    .btn.good{
+      background: linear-gradient(135deg, rgba(61,220,151,.9), rgba(61,220,151,.55));
+      border-color: rgba(61,220,151,.65);
+      color:#061a12;
+    }
+    .btn.warn{
+      background: linear-gradient(135deg, rgba(255,204,102,.95), rgba(255,204,102,.55));
+      border-color: rgba(255,204,102,.65);
+      color:#1a1206;
+    }
+    .btn.danger{
+      background: rgba(255,107,107,.12);
+      border-color: rgba(255,107,107,.35);
+      color: var(--text);
+    }
+
+    .layout{
+      max-width:1200px;
+      margin: 0 auto;
+      padding: 16px;
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:16px;
+    }
+
+    @media (max-width: 980px){
+      .layout{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      background: linear-gradient(180deg, rgba(15,26,51,.92), rgba(13,22,48,.92));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar{
+      padding: 14px;
+      position: sticky;
+      top: 76px;
+      height: calc(100vh - 92px);
+      overflow:auto;
+    }
+    @media (max-width: 980px){
+      .sidebar{
+        position: static;
+        height:auto;
+      }
+    }
+
+    .sidebar h2{
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      letter-spacing:.2px;
+    }
+    .sidebar .muted{ color: var(--muted); font-size:12px; margin:0 0 10px 0; }
+
+    .searchRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin: 10px 0 12px 0;
+    }
+    .searchRow input{
+      width:100%;
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--border);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      font-weight:600;
+      font-size:13px;
+    }
+    .searchRow input:focus{ outline: 2px solid rgba(122,162,255,.55); outline-offset:2px; }
+
+    .problemList{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:10px;
+    }
+    .problemItem{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255,255,255,.04);
+      padding:10px;
+      cursor:pointer;
+      transition: background .15s ease, transform .08s ease, border-color .15s ease;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+    }
+    .problemItem:hover{ background: rgba(255,255,255,.07); }
+    .problemItem:active{ transform: translateY(1px); }
+    .problemItem[aria-current="true"]{
+      border-color: rgba(122,162,255,.7);
+      box-shadow: 0 0 0 2px rgba(122,162,255,.18) inset;
+      background: rgba(122,162,255,.08);
+    }
+    .pi-left{ min-width:0; }
+    .pi-title{
+      font-weight:800;
+      font-size:13px;
+      margin:0;
+      line-height:1.25;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .pi-tags{
+      margin-top:4px;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .badge{
+      flex:0 0 auto;
+      border-radius:999px;
+      padding:4px 8px;
+      font-size:11px;
+      font-weight:800;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      user-select:none;
+    }
+    .badge.done{
+      border-color: rgba(61,220,151,.45);
+      background: rgba(61,220,151,.10);
+      color: rgba(61,220,151,.95);
+    }
+
+    .content{
+      padding: 14px;
+    }
+
+    .contentHeader{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .titleBlock h2{
+      margin: 0 0 6px 0;
+      font-size: 18px;
+      letter-spacing:.2px;
+    }
+    .titleBlock .sub{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+      max-width: 74ch;
+    }
+
+    .contentHeader .rightMeta{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+      margin-top:14px;
+    }
+
+    .section{
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.03);
+    }
+    .section h3{
+      margin:0 0 8px 0;
+      font-size:14px;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .hr{
+      height:1px;
+      background: var(--border);
+      margin: 10px 0;
+    }
+
+    .callout{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255,255,255,.04);
+      padding:10px;
+      color: var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .stepsList{
+      list-style:none;
+      padding:0;
+      margin:10px 0 0 0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .stepCard{
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(15,36,71,.9), rgba(15,36,71,.55));
+      padding: 10px;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+      box-shadow: 0 10px 18px rgba(0,0,0,.15);
+    }
+
+    .stepCard.dragging{
+      opacity:.65;
+      outline: 2px dashed rgba(122,162,255,.7);
+      outline-offset:2px;
+    }
+
+    .stepCard.correct{
+      border-color: rgba(61,220,151,.55);
+      box-shadow: 0 0 0 2px rgba(61,220,151,.12) inset;
+    }
+    .stepCard.wrong{
+      border-color: rgba(255,107,107,.55);
+      box-shadow: 0 0 0 2px rgba(255,107,107,.12) inset;
+    }
+
+    .stepText{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      font-weight:650;
+    }
+    .stepIdx{
+      font-family: var(--mono);
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom:6px;
+    }
+
+    .controls{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:flex-end;
+      flex:0 0 auto;
+    }
+
+    .iconBtn{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 6px 8px;
+      font-weight:900;
+      cursor:pointer;
+      min-width: 38px;
+    }
+    .iconBtn:disabled{
+      opacity:.4;
+      cursor:not-allowed;
+    }
+
+    .dragHandle{
+      user-select:none;
+      cursor:grab;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      padding: 6px 8px;
+      border-radius: 10px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height:1;
+      align-self:flex-start;
+    }
+    .dragHandle:active{ cursor:grabbing; }
+
+    .feedback{
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      font-size: 13px;
+      color: var(--muted);
+      line-height:1.5;
+    }
+    .feedback.good{
+      border-color: rgba(61,220,151,.45);
+      background: rgba(61,220,151,.09);
+      color: rgba(234,240,255,.98);
+    }
+    .feedback.bad{
+      border-color: rgba(255,107,107,.45);
+      background: rgba(255,107,107,.08);
+      color: rgba(234,240,255,.98);
+    }
+    .feedback.warn{
+      border-color: rgba(255,204,102,.45);
+      background: rgba(255,204,102,.08);
+      color: rgba(234,240,255,.98);
+    }
+
+    .lockRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .lockPill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      user-select:none;
+    }
+
+    .matchingGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top: 10px;
+    }
+    @media (max-width: 980px){
+      .matchingGrid{ grid-template-columns: 1fr; }
+    }
+
+    .matchLeft, .matchRight{
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px;
+      background: rgba(255,255,255,.03);
+    }
+
+    .matchRow{
+      display:grid;
+      grid-template-columns: 1fr 220px;
+      gap:10px;
+      align-items:center;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    @media (max-width: 560px){
+      .matchRow{ grid-template-columns: 1fr; }
+    }
+
+    .matchRow.correct{
+      border-color: rgba(61,220,151,.45);
+      box-shadow: 0 0 0 2px rgba(61,220,151,.12) inset;
+    }
+    .matchRow.wrong{
+      border-color: rgba(255,107,107,.45);
+      box-shadow: 0 0 0 2px rgba(255,107,107,.12) inset;
+    }
+
+    .matchStep{
+      margin:0;
+      font-size:13px;
+      line-height:1.45;
+      font-weight:700;
+    }
+
+    select.matchSel {
+      background-color: #0f1a33;
+      color: #eaf0ff;
+    }
+
+    select.matchSel option {
+      background-color: #0f1a33;
+      color: #eaf0ff;
+    }
+
+    select.matchSel:focus {
+      outline: 2px solid rgba(122,162,255,.7);
+      outline-offset: 2px;
+    }
+
+    .snipCard{
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .snipHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 8px;
+    }
+    .snipLabel{
+      font-family: var(--mono);
+      color: rgba(122,162,255,.9);
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing:.4px;
+    }
+    .snipCopy{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 6px 8px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:12px;
+    }
+    .snipCopy:active{ transform: translateY(1px); }
+
+    pre{
+      margin:0;
+      overflow:auto;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.08);
+      color: rgba(234,240,255,.95);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    details{
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.03);
+      padding: 10px;
+    }
+    details > summary{
+      cursor:pointer;
+      font-weight:900;
+      font-size:13px;
+      color: rgba(234,240,255,.96);
+      list-style:none;
+    }
+    details > summary::-webkit-details-marker{ display:none; }
+    details .detailBody{
+      margin-top:10px;
+      color: var(--muted);
+      font-size:13px;
+      line-height:1.5;
+    }
+    .bullets{
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .kpiRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .kpi{
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+      padding: 10px;
+      min-width: 160px;
+      flex: 1 1 160px;
+    }
+    .kpi .label{
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+      font-weight:800;
+    }
+    .kpi .value{
+      font-weight: 950;
+      letter-spacing: .2px;
+      font-size: 14px;
+    }
+
+    .sr-only{
+      position:absolute !important;
+      height:1px; width:1px;
+      overflow:hidden;
+      clip: rect(1px, 1px, 1px, 1px);
+      white-space:nowrap;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="header-inner">
+    <div class="brand" aria-label="Page title">
+      <div class="logo" aria-hidden="true"><span>J</span></div>
+      <div style="min-width:0">
+        <h1>Problem → Logic → Java (Software Development 2)</h1>
+        <p>Two-step practice: order the logic, then match each step to Java code.</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="pill" id="progressPill" aria-live="polite">Progress: <strong id="progressCount">0/20</strong></div>
+      <button class="btn danger" id="resetProgressBtn" type="button" aria-label="Reset progress">Reset progress</button>
+    </div>
+  </div>
+</header>
+
+<main class="layout" aria-label="Interactive learning page">
+  <aside class="panel sidebar" aria-label="Problem selector">
+    <h2>Choose a problem</h2>
+    <p class="muted">Search by keyword (e.g., <em>arrays</em>, <em>strings</em>, <em>loops</em>).</p>
+
+    <div class="searchRow">
+      <label class="sr-only" for="searchInput">Search problems</label>
+      <input id="searchInput" type="text" placeholder="Search (title, topic, keyword)..." autocomplete="off" />
+      <button class="btn" id="clearSearchBtn" type="button" aria-label="Clear search">Clear</button>
+    </div>
+
+    <div class="callout" id="quickGuide">
+      <strong style="color:rgba(234,240,255,.98)">How it works</strong><br/>
+      <span>1) Put micro-steps in order.</span><br/>
+      <span>2) Match each step to a code snippet.</span><br/>
+      <span>Your completions & best attempts are saved on this device.</span>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="problemList" id="problemList" role="listbox" aria-label="Problem list"></div>
+  </aside>
+
+  <section class="panel content" aria-label="Problem workspace">
+    <div class="contentHeader">
+      <div class="titleBlock">
+        <h2 id="problemTitle">Loading…</h2>
+        <p class="sub" id="problemStatement"></p>
+        <div class="kpiRow" aria-label="Progress stats">
+          <div class="kpi">
+            <div class="label">Status</div>
+            <div class="value" id="statusValue">Not completed</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Best order checks (lower is better)</div>
+            <div class="value" id="bestOrderValue">—</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Best matching checks (lower is better)</div>
+            <div class="value" id="bestMatchValue">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rightMeta">
+        <button class="btn" id="prevBtn" type="button" aria-label="Previous problem">← Prev</button>
+        <button class="btn" id="nextBtn" type="button" aria-label="Next problem">Next →</button>
+      </div>
+    </div>
+
+    <div class="grid2">
+
+      <!-- Step 1 -->
+      <div class="section" aria-label="Step 1 ordering">
+        <h3>Step 1 — Order the logic</h3>
+
+        <div class="row">
+          <button class="btn warn" id="reshuffleBtn" type="button" aria-label="Reshuffle the steps">Reshuffle</button>
+          <button class="btn primary" id="checkOrderBtn" type="button" aria-label="Check step order">Check order</button>
+          <div class="pill" aria-live="polite">Order checks: <strong id="orderAttempts">0</strong></div>
+          <div class="pill">Tip: drag cards, or use ↑/↓ buttons.</div>
+        </div>
+
+        <ol class="stepsList" id="orderingList" aria-label="Draggable micro-steps list"></ol>
+
+        <div class="feedback" id="orderFeedback" aria-live="polite">Arrange the steps, then click <strong>Check order</strong>.</div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="section" aria-label="Step 2 matching">
+        <div class="lockRow">
+          <h3 style="margin:0">Step 2 — Map each step to Java code</h3>
+          <div class="lockPill" id="step2Lock" aria-live="polite">🔒 Locked — complete Step 1 to unlock</div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" id="checkMatchBtn" type="button" aria-label="Check code matching" disabled>Check matching</button>
+          <div class="pill" aria-live="polite">Matching checks: <strong id="matchAttempts">0</strong></div>
+          <div class="pill">Choose a snippet label for each step.</div>
+        </div>
+
+        <div class="matchingGrid" aria-label="Matching area">
+          <div class="matchLeft" aria-label="Ordered steps with dropdowns">
+            <div id="matchRows"></div>
+            <div class="feedback" id="matchFeedback" aria-live="polite">Unlock Step 2 by completing Step 1.</div>
+          </div>
+          <div class="matchRight" aria-label="Scrambled code snippets">
+            <div class="callout">
+              <strong style="color:rgba(234,240,255,.98)">Code bank</strong><br/>
+              Snippets are scrambled. Match each ordered logic step to the correct snippet label.
+            </div>
+            <div class="hr"></div>
+            <div id="snippetBank"></div>
+          </div>
+        </div>
+
+        <div class="feedback good" id="completedMsg" style="display:none" aria-live="polite">
+          ✅ <strong>Completed!</strong> You ordered the logic and matched the code correctly.
+        </div>
+      </div>
+
+      <!-- Pedagogy aids -->
+      <details aria-label="Hints">
+        <summary>Hints (toggle)</summary>
+        <div class="detailBody" id="hintsBody"></div>
+      </details>
+
+      <details aria-label="Common mistakes">
+        <summary>Common mistakes (toggle)</summary>
+        <div class="detailBody" id="mistakesBody"></div>
+      </details>
+
+      <details aria-label="Reference solution">
+        <summary>Show reference solution (toggle)</summary>
+        <div class="detailBody">
+          <div class="callout" style="margin-bottom:10px">
+            Use the reference <em>after</em> you try. Compare structure, not just final code.
+          </div>
+          <pre id="solutionPre" aria-label="Reference solution code"></pre>
+        </div>
+      </details>
+
+      <details aria-label="Why these steps" id="whyDetails" style="display:none">
+        <summary>Why these steps? (toggle)</summary>
+        <div class="detailBody" id="whyBody"></div>
+      </details>
+
+    </div>
+  </section>
+</main>
+
+
+<script>
+  window.PROBLEMS = [];
+</script>
+
+<script src="problems/problem-01.js"></script>
+
+<script>
+/**
+ * Single-file interactive page: 20 Java problems.
+ * Two steps:
+ *  1) Order micro-steps (drag & drop + up/down controls).
+ *  2) Match each ordered step to a code snippet (dropdowns).
+ * Progress: localStorage completion + best attempts.
+ */
+
+(function(){
+  "use strict";
+
+  // ---------- LocalStorage ----------
+  const STORAGE_KEY = "sd2_problem_solver_progress_v1";
+
+  function loadProgress(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return {};
+      const obj = JSON.parse(raw);
+      return (obj && typeof obj === "object") ? obj : {};
+    }catch(e){
+      return {};
+    }
+  }
+
+  function saveProgress(p){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  }
+
+  function getProgressFor(id){
+    const prog = loadProgress();
+    if (!prog[id]) prog[id] = {
+      completed:false,
+      bestOrderChecks:null,
+      bestMatchChecks:null,
+      lastOrderChecks:0,
+      lastMatchChecks:0
+    };
+    return prog;
+  }
+
+  function countCompleted(prog){
+    let c = 0;
+    for (const pr of PROBLEMS){
+      if (prog[pr.id] && prog[pr.id].completed) c++;
+    }
+    return c;
+  }
+
+  // ---------- State ----------
+  let currentIndex = 0; // 0..19
+  let currentProblem = null;
+
+  // Step 1 state
+  let ordering = []; // array of {stepIndex, text}
+  let orderChecks = 0;
+  let step1Solved = false;
+
+  // Step 2 state
+  let snippetCards = []; // array of {label, snipIndex, code}
+  let matchSelections = []; // by ordered step index => selected label or ""
+  let matchChecks = 0;
+  let step2Solved = false;
+
+  // ---------- DOM ----------
+  const elProblemList = document.getElementById("problemList");
+  const elSearchInput = document.getElementById("searchInput");
+  const elClearSearchBtn = document.getElementById("clearSearchBtn");
+
+  const elTitle = document.getElementById("problemTitle");
+  const elStatement = document.getElementById("problemStatement");
+
+  const elOrderingList = document.getElementById("orderingList");
+  const elOrderFeedback = document.getElementById("orderFeedback");
+  const elOrderAttempts = document.getElementById("orderAttempts");
+  const elReshuffleBtn = document.getElementById("reshuffleBtn");
+  const elCheckOrderBtn = document.getElementById("checkOrderBtn");
+
+  const elStep2Lock = document.getElementById("step2Lock");
+  const elCheckMatchBtn = document.getElementById("checkMatchBtn");
+  const elMatchAttempts = document.getElementById("matchAttempts");
+  const elMatchRows = document.getElementById("matchRows");
+  const elSnippetBank = document.getElementById("snippetBank");
+  const elMatchFeedback = document.getElementById("matchFeedback");
+  const elCompletedMsg = document.getElementById("completedMsg");
+
+  const elHintsBody = document.getElementById("hintsBody");
+  const elMistakesBody = document.getElementById("mistakesBody");
+  const elSolutionPre = document.getElementById("solutionPre");
+  const elWhyDetails = document.getElementById("whyDetails");
+  const elWhyBody = document.getElementById("whyBody");
+
+  const elPrevBtn = document.getElementById("prevBtn");
+  const elNextBtn = document.getElementById("nextBtn");
+
+  const elResetProgressBtn = document.getElementById("resetProgressBtn");
+  const elProgressCount = document.getElementById("progressCount");
+
+  const elStatusValue = document.getElementById("statusValue");
+  const elBestOrderValue = document.getElementById("bestOrderValue");
+  const elBestMatchValue = document.getElementById("bestMatchValue");
+
+  // ---------- Helpers ----------
+  function escapeHtml(s){
+    return s.replace(/[&<>"']/g, (ch) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[ch]));
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function labelsFor(n){
+    const base = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const out = [];
+    for (let i = 0; i < n; i++){
+      out.push(base[i] || ("S" + (i+1)));
+    }
+    return out;
+  }
+
+  function normalizeSearch(s){
+    return (s || "").toLowerCase().trim();
+  }
+
+  function setFeedback(el, type, html){
+    el.classList.remove("good","bad","warn");
+    if (type) el.classList.add(type);
+    el.innerHTML = html;
+  }
+
+  function updateTopProgressPill(){
+    const prog = loadProgress();
+    const done = countCompleted(prog);
+    elProgressCount.textContent = `${done}/1`;
+  }
+
+  // ---------- Sidebar rendering ----------
+  function renderProblemList(filterText){
+    const q = normalizeSearch(filterText);
+    const prog = loadProgress();
+
+    elProblemList.innerHTML = "";
+    const items = PROBLEMS
+      .map((p, idx) => ({p, idx}))
+      .filter(({p}) => {
+        if (!q) return true;
+        const hay = (p.title + " " + p.tags.join(" ") + " " + p.statement).toLowerCase();
+        return hay.includes(q);
+      });
+
+    if (items.length === 0){
+      const empty = document.createElement("div");
+      empty.className = "callout";
+      empty.innerHTML = "No matches. Try another keyword (e.g., <em>arrays</em>, <em>strings</em>).";
+      elProblemList.appendChild(empty);
+      return;
+    }
+
+    items.forEach(({p, idx}) => {
+      const div = document.createElement("div");
+      div.className = "problemItem";
+      div.setAttribute("role", "option");
+      div.setAttribute("tabindex", "0");
+      div.dataset.index = String(idx);
+      div.setAttribute("aria-current", idx === currentIndex ? "true" : "false");
+
+      const left = document.createElement("div");
+      left.className = "pi-left";
+      const t = document.createElement("p");
+      t.className = "pi-title";
+      t.textContent = `${p.id}. ${p.title}`;
+      const tags = document.createElement("div");
+      tags.className = "pi-tags";
+      tags.textContent = p.tags.join(" • ");
+      left.appendChild(t);
+      left.appendChild(tags);
+
+      const badge = document.createElement("div");
+      const done = !!(prog[p.id] && prog[p.id].completed);
+      badge.className = "badge" + (done ? " done" : "");
+      badge.textContent = done ? "Done" : "To do";
+
+      div.appendChild(left);
+      div.appendChild(badge);
+
+      div.addEventListener("click", () => loadProblemByIndex(idx));
+      div.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          loadProblemByIndex(idx);
+        }
+      });
+
+      elProblemList.appendChild(div);
+    });
+  }
+
+  // ---------- Step 1: Ordering UI ----------
+  function buildOrderingState(problem){
+    orderChecks = 0;
+    step1Solved = false;
+    step2Solved = false;
+    matchChecks = 0;
+
+    // Build ordering array as objects, then shuffle
+    ordering = shuffle(problem.steps.map((txt, stepIndex) => ({ stepIndex, text: txt })));
+
+    // Reset matching structures; will be built after Step 1 correct
+    snippetCards = [];
+    matchSelections = [];
+
+    elOrderAttempts.textContent = "0";
+    elMatchAttempts.textContent = "0";
+    elCompletedMsg.style.display = "none";
+    elWhyDetails.style.display = "none";
+    elWhyBody.textContent = "";
+    setFeedback(elOrderFeedback, "", `Arrange the steps, then click <strong>Check order</strong>.`);
+    setFeedback(elMatchFeedback, "", `Unlock Step 2 by completing Step 1.`);
+
+    lockStep2(true);
+    renderOrderingList();
+    clearOrderingMarks();
+  }
+
+  function clearOrderingMarks(){
+    // Remove wrong/correct markers
+    [...elOrderingList.querySelectorAll(".stepCard")].forEach(card => {
+      card.classList.remove("wrong","correct");
+    });
+  }
+
+  function renderOrderingList(){
+    elOrderingList.innerHTML = "";
+
+    ordering.forEach((item, pos) => {
+      const li = document.createElement("li");
+      li.className = "stepCard";
+      li.draggable = true;
+      li.dataset.pos = String(pos);
+      li.dataset.stepIndex = String(item.stepIndex);
+
+      // Drag events on the card
+      li.addEventListener("dragstart", (e) => {
+        li.classList.add("dragging");
+        e.dataTransfer.setData("text/plain", String(pos));
+        e.dataTransfer.effectAllowed = "move";
+      });
+      li.addEventListener("dragend", () => {
+        li.classList.remove("dragging");
+      });
+      li.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+      });
+      li.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const from = Number(e.dataTransfer.getData("text/plain"));
+        const to = pos;
+        if (!Number.isFinite(from) || from === to) return;
+        moveItem(from, to);
+      });
+
+      const left = document.createElement("div");
+      left.style.minWidth = "0";
+
+      const idx = document.createElement("div");
+      idx.className = "stepIdx";
+      idx.textContent = `Position ${pos + 1}`;
+      const p = document.createElement("p");
+      p.className = "stepText";
+      p.textContent = item.text;
+
+      left.appendChild(idx);
+      left.appendChild(p);
+
+      const controls = document.createElement("div");
+      controls.className = "controls";
+
+      const handle = document.createElement("div");
+      handle.className = "dragHandle";
+      handle.title = "Drag to reorder";
+      handle.textContent = "drag";
+
+      const up = document.createElement("button");
+      up.className = "iconBtn";
+      up.type = "button";
+      up.setAttribute("aria-label", `Move step at position ${pos+1} up`);
+      up.textContent = "↑";
+      up.disabled = pos === 0;
+      up.addEventListener("click", () => moveItem(pos, pos - 1));
+
+      const down = document.createElement("button");
+      down.className = "iconBtn";
+      down.type = "button";
+      down.setAttribute("aria-label", `Move step at position ${pos+1} down`);
+      down.textContent = "↓";
+      down.disabled = pos === ordering.length - 1;
+      down.addEventListener("click", () => moveItem(pos, pos + 1));
+
+      controls.appendChild(handle);
+      controls.appendChild(up);
+      controls.appendChild(down);
+
+      li.appendChild(left);
+      li.appendChild(controls);
+      elOrderingList.appendChild(li);
+    });
+  }
+
+  function moveItem(from, to){
+    if (to < 0 || to >= ordering.length) return;
+    const copy = ordering.slice();
+    const [moved] = copy.splice(from, 1);
+    copy.splice(to, 0, moved);
+    ordering = copy;
+    renderOrderingList();
+    clearOrderingMarks();
+    setFeedback(elOrderFeedback, "", `Moved. Click <strong>Check order</strong> when ready.`);
+  }
+
+  function reshuffleOrdering(){
+    ordering = shuffle(ordering);
+    renderOrderingList();
+    clearOrderingMarks();
+    step1Solved = false;
+    step2Solved = false;
+    lockStep2(true);
+    elCompletedMsg.style.display = "none";
+    elWhyDetails.style.display = "none";
+    setFeedback(elOrderFeedback, "", `Reshuffled. Reorder the steps, then click <strong>Check order</strong>.`);
+    setFeedback(elMatchFeedback, "", `Unlock Step 2 by completing Step 1.`);
+  }
+
+  function checkOrder(){
+    orderChecks++;
+    elOrderAttempts.textContent = String(orderChecks);
+
+    const isCorrectAtPos = ordering.map((item, pos) => item.stepIndex === pos);
+    const allCorrect = isCorrectAtPos.every(Boolean);
+
+    // Mark incorrect positions without revealing correct order
+    [...elOrderingList.querySelectorAll(".stepCard")].forEach((card, pos) => {
+      card.classList.remove("wrong","correct");
+            if (isCorrectAtPos[pos]) card.classList.add("correct");
+      else card.classList.add("wrong");
+    });
+
+    // Persist "last attempts" even if not solved
+    const prog = getProgressFor(currentProblem.id);
+    prog[currentProblem.id].lastOrderChecks = orderChecks;
+    saveProgress(prog);
+    updateKpis();
+
+    if (allCorrect){
+      step1Solved = true;
+
+      // Update best order checks
+      if (prog[currentProblem.id].bestOrderChecks === null || orderChecks < prog[currentProblem.id].bestOrderChecks){
+        prog[currentProblem.id].bestOrderChecks = orderChecks;
+      }
+      saveProgress(prog);
+      updateTopProgressPill();
+      updateKpis();
+
+      setFeedback(
+        elOrderFeedback,
+        "good",
+        `✅ Correct order! Step 2 is now unlocked. Try to match each logic step to the correct code snippet.`
+      );
+
+      lockStep2(false);
+      buildMatchingUI(currentProblem);
+    } else {
+      step1Solved = false;
+      step2Solved = false;
+      elCompletedMsg.style.display = "none";
+      elWhyDetails.style.display = "none";
+      lockStep2(true);
+
+      const correctCount = isCorrectAtPos.filter(Boolean).length;
+      const total = isCorrectAtPos.length;
+      setFeedback(
+        elOrderFeedback,
+        "warn",
+        `Not quite yet. <strong>${correctCount}/${total}</strong> positions are correct. Keep rearranging and check again.`
+      );
+      setFeedback(elMatchFeedback, "", `Unlock Step 2 by completing Step 1.`);
+    }
+  }
+
+  // ---------- Step 2: Matching UI ----------
+  function lockStep2(locked){
+    if (locked){
+      elStep2Lock.textContent = "🔒 Locked — complete Step 1 to unlock";
+      elCheckMatchBtn.disabled = true;
+      elMatchRows.innerHTML = "";
+      elSnippetBank.innerHTML = "";
+      matchSelections = [];
+      snippetCards = [];
+      matchChecks = 0;
+      elMatchAttempts.textContent = "0";
+      setFeedback(elMatchFeedback, "", `Unlock Step 2 by completing Step 1.`);
+    } else {
+      elStep2Lock.textContent = "🔓 Unlocked — match each step to code";
+      elCheckMatchBtn.disabled = false;
+      setFeedback(elMatchFeedback, "", `Choose a snippet label for each step, then click <strong>Check matching</strong>.`);
+    }
+  }
+
+  function buildMatchingUI(problem){
+    // Build snippet cards: each snippet corresponds to a stepIndex (same alignment)
+    const labels = labelsFor(problem.snippets.length);
+    const raw = problem.snippets.map((code, snipIndex) => ({
+      snipIndex,
+      code,
+      // label assigned later (after shuffle)
+      label: ""
+    }));
+
+    const shuffled = shuffle(raw);
+    snippetCards = shuffled.map((item, i) => ({
+      ...item,
+      label: labels[i]
+    }));
+
+    // Reset selections
+    matchSelections = new Array(problem.steps.length).fill("");
+
+    renderSnippetBank();
+    renderMatchRows();
+  }
+
+  function renderSnippetBank(){
+    elSnippetBank.innerHTML = "";
+
+    snippetCards.forEach(card => {
+      const wrap = document.createElement("div");
+      wrap.className = "snipCard";
+
+      const header = document.createElement("div");
+      header.className = "snipHeader";
+
+      const label = document.createElement("div");
+      label.className = "snipLabel";
+      label.textContent = `Snippet ${card.label}`;
+
+      const copy = document.createElement("button");
+      copy.className = "snipCopy";
+      copy.type = "button";
+      copy.textContent = "Copy";
+      copy.addEventListener("click", async () => {
+        try{
+          await navigator.clipboard.writeText(card.code);
+          copy.textContent = "Copied!";
+          setTimeout(() => copy.textContent = "Copy", 900);
+        }catch(e){
+          copy.textContent = "Copy failed";
+          setTimeout(() => copy.textContent = "Copy", 1200);
+        }
+      });
+
+      header.appendChild(label);
+      header.appendChild(copy);
+
+      const pre = document.createElement("pre");
+      pre.innerHTML = escapeHtml(card.code);
+
+      wrap.appendChild(header);
+      wrap.appendChild(pre);
+      elSnippetBank.appendChild(wrap);
+    });
+  }
+
+  function renderMatchRows(){
+    elMatchRows.innerHTML = "";
+
+    // Use current ordering display (even if user somehow unlocked then reorders,
+    // we'll relock on move/reshuffle; still, keep robust)
+    ordering.forEach((item, pos) => {
+      const row = document.createElement("div");
+      row.className = "matchRow";
+      row.dataset.pos = String(pos);
+      row.dataset.stepIndex = String(item.stepIndex);
+
+      const stepP = document.createElement("p");
+      stepP.className = "matchStep";
+      stepP.textContent = `${pos + 1}. ${item.text}`;
+
+      const sel = document.createElement("select");
+      sel.className = "matchSel";
+      sel.setAttribute("aria-label", `Choose code snippet for step ${pos + 1}`);
+
+      // Empty option
+      const opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = "Choose snippet…";
+      sel.appendChild(opt0);
+
+      // Options are snippet labels (scrambled)
+      snippetCards.forEach(card => {
+        const opt = document.createElement("option");
+        opt.value = card.label;
+        opt.textContent = `Snippet ${card.label}`;
+        sel.appendChild(opt);
+      });
+
+      sel.value = matchSelections[pos] || "";
+      sel.addEventListener("change", () => {
+        matchSelections[pos] = sel.value;
+        // Clear row marks while editing
+        row.classList.remove("wrong","correct");
+        elCompletedMsg.style.display = "none";
+        setFeedback(elMatchFeedback, "", `Selections updated. Click <strong>Check matching</strong> when ready.`);
+      });
+
+      row.appendChild(stepP);
+      row.appendChild(sel);
+      elMatchRows.appendChild(row);
+    });
+  }
+
+  function correctLabelForStepIndex(stepIndex){
+    // Find the snippet card whose snipIndex matches this stepIndex
+    const card = snippetCards.find(c => c.snipIndex === stepIndex);
+    return card ? card.label : null;
+  }
+
+  function checkMatching(){
+    if (!step1Solved){
+      setFeedback(elMatchFeedback, "warn", `Step 2 is locked. Complete Step 1 first.`);
+      return;
+    }
+
+    matchChecks++;
+    elMatchAttempts.textContent = String(matchChecks);
+
+    const rows = [...elMatchRows.querySelectorAll(".matchRow")];
+
+    // Validate all chosen
+    const allChosen = matchSelections.every(v => v && v.trim().length > 0);
+    if (!allChosen){
+      setFeedback(elMatchFeedback, "warn", `Please choose a snippet for <strong>every</strong> step before checking.`);
+      return;
+    }
+
+    // Check correctness per row
+    let correctCount = 0;
+    rows.forEach((row, pos) => {
+      row.classList.remove("wrong","correct");
+      const stepIndex = Number(row.dataset.stepIndex);
+      const correctLabel = correctLabelForStepIndex(stepIndex);
+      const chosen = matchSelections[pos];
+
+      if (chosen === correctLabel){
+        row.classList.add("correct");
+        correctCount++;
+      } else {
+        row.classList.add("wrong");
+      }
+    });
+
+    // Persist last match attempts
+    const prog = getProgressFor(currentProblem.id);
+    prog[currentProblem.id].lastMatchChecks = matchChecks;
+    saveProgress(prog);
+
+    updateKpis();
+
+    if (correctCount === rows.length){
+      step2Solved = true;
+
+      // Completed: update best match checks + mark completed
+      if (prog[currentProblem.id].bestMatchChecks === null || matchChecks < prog[currentProblem.id].bestMatchChecks){
+        prog[currentProblem.id].bestMatchChecks = matchChecks;
+      }
+      prog[currentProblem.id].completed = true;
+      saveProgress(prog);
+
+      updateTopProgressPill();
+      updateKpis();
+
+      setFeedback(elMatchFeedback, "good", `✅ Perfect! All matches are correct.`);
+      elCompletedMsg.style.display = "block";
+      elWhyDetails.style.display = "block";
+      elWhyBody.textContent = currentProblem.why || "";
+    } else {
+      step2Solved = false;
+      elCompletedMsg.style.display = "none";
+      setFeedback(
+        elMatchFeedback,
+        "warn",
+        `Not yet. <strong>${correctCount}/${rows.length}</strong> matches are correct. Fix the highlighted rows and try again.`
+      );
+    }
+  }
+
+  // ---------- Content (hints, mistakes, solution) ----------
+  function renderAids(problem){
+    // Hints
+    elHintsBody.innerHTML = `
+      <ul class="bullets">
+        ${problem.hints.map(h => `<li>${escapeHtml(h)}</li>`).join("")}
+      </ul>
+    `;
+
+    // Common mistakes
+    elMistakesBody.innerHTML = `
+      <ul class="bullets">
+        ${problem.mistakes.map(m => `<li>${escapeHtml(m)}</li>`).join("")}
+      </ul>
+    `;
+
+    // Solution
+    elSolutionPre.textContent = problem.solution || "";
+  }
+
+  // ---------- KPIs ----------
+  function updateKpis(){
+    const prog = loadProgress();
+    const pr = prog[currentProblem.id] || {
+      completed:false,
+      bestOrderChecks:null,
+      bestMatchChecks:null,
+      lastOrderChecks:0,
+      lastMatchChecks:0
+    };
+
+    elStatusValue.textContent = pr.completed ? "Completed" : "Not completed";
+    elBestOrderValue.textContent = (pr.bestOrderChecks === null) ? "—" : String(pr.bestOrderChecks);
+    elBestMatchValue.textContent = (pr.bestMatchChecks === null) ? "—" : String(pr.bestMatchChecks);
+  }
+
+  // ---------- Problem loading & navigation ----------
+  function loadProblemByIndex(idx){
+    currentIndex = Math.max(0, Math.min(PROBLEMS.length - 1, idx));
+    currentProblem = PROBLEMS[currentIndex];
+
+    // Title + statement
+    elTitle.textContent = `${currentProblem.id}. ${currentProblem.title}`;
+    elStatement.textContent = currentProblem.statement;
+
+    // Build step states
+    buildOrderingState(currentProblem);
+
+    // Aids
+    renderAids(currentProblem);
+
+    // Update sidebar current highlight
+    renderProblemList(elSearchInput.value);
+
+    // Buttons
+    elPrevBtn.disabled = (currentIndex === 0);
+    elNextBtn.disabled = (currentIndex === PROBLEMS.length - 1);
+
+    // KPIs
+    updateKpis();
+  }
+
+  function goPrev(){
+    if (currentIndex > 0) loadProblemByIndex(currentIndex - 1);
+  }
+  function goNext(){
+    if (currentIndex < PROBLEMS.length - 1) loadProblemByIndex(currentIndex + 1);
+  }
+
+  // ---------- Progress reset ----------
+  function resetProgress(){
+    const ok = confirm("Reset all saved progress on this device? This cannot be undone.");
+    if (!ok) return;
+    localStorage.removeItem(STORAGE_KEY);
+    updateTopProgressPill();
+    loadProblemByIndex(currentIndex);
+  }
+
+  // ---------- Event wiring ----------
+  elReshuffleBtn.addEventListener("click", reshuffleOrdering);
+  elCheckOrderBtn.addEventListener("click", checkOrder);
+  elCheckMatchBtn.addEventListener("click", checkMatching);
+
+  elPrevBtn.addEventListener("click", goPrev);
+  elNextBtn.addEventListener("click", goNext);
+
+  elResetProgressBtn.addEventListener("click", resetProgress);
+
+  elSearchInput.addEventListener("input", () => {
+    renderProblemList(elSearchInput.value);
+  });
+
+  elClearSearchBtn.addEventListener("click", () => {
+    elSearchInput.value = "";
+    renderProblemList("");
+    elSearchInput.focus();
+  });
+
+  // Important: if ordering changes after solving, relock Step 2
+  // (We do this by hooking into moveItem and reshuffleOrdering already. Add it here too for safety.)
+  const _origMoveItem = moveItem;
+  moveItem = function(from, to){
+    // call original
+    _origMoveItem(from, to);
+    // changing order invalidates step 1 & step 2
+    if (step1Solved){
+      step1Solved = false;
+      step2Solved = false;
+      lockStep2(true);
+      elCompletedMsg.style.display = "none";
+      elWhyDetails.style.display = "none";
+      setFeedback(elOrderFeedback, "", `Order changed. Click <strong>Check order</strong> again to unlock Step 2.`);
+    }
+  };
+
+  // ---------- Init ----------
+  updateTopProgressPill();
+  renderProblemList("");
+  loadProblemByIndex(0);
+
+})();
+</script>
+
+</body>
+</html>
+
